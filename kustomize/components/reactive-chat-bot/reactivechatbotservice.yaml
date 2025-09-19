@@ -1,0 +1,124 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: reactivechatbotservice
+  labels:
+    app: reactivechatbotservice
+spec:
+  selector:
+    matchLabels:
+      app: reactivechatbotservice
+  template:
+    metadata:
+      labels:
+        app: reactivechatbotservice
+    spec:
+      serviceAccountName: reactivechatbotservice
+      terminationGracePeriodSeconds: 5
+      securityContext:
+        fsGroup: 1000
+        runAsGroup: 1000
+        runAsNonRoot: true
+        runAsUser: 1000
+      containers:
+        - name: service
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+            privileged: false
+            readOnlyRootFilesystem: false
+          image: us-central1-docker.pkg.dev/online-boutique-chatbot-472206/images/reactivechatbotservice:v39
+          ports:
+            - name: http
+              containerPort: 8501
+          env:
+            - name: DISABLE_PROFILER
+              value: "1"
+            - name: PRODUCT_CATALOG_SERVICE_ADDR
+              value: "productcatalogservice:3550"
+            - name: CURRENCY_SERVICE_ADDR
+              value: "currencyservice:7000"
+            - name: CART_SERVICE_ADDR
+              value: "cartservice:7070"
+            - name: RECOMMENDATION_SERVICE_ADDR
+              value: "recommendationservice:8080"
+            - name: SHIPPING_SERVICE_ADDR
+              value: "shippingservice:50051"
+            - name: CHECKOUT_SERVICE_ADDR
+              value: "checkoutservice:5050"
+            - name: AD_SERVICE_ADDR
+              value: "adservice:9555"
+            - name: GEMINI_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: reactive-chatbot-secret-data
+                  key: gemini-api-key
+            - name: ONLINE_BOUTIQUE_BASE_URL
+              value: "http://34.57.12.32"
+          livenessProbe:
+            httpGet:
+              path: /_stcore/health
+              port: 8501
+            initialDelaySeconds: 10
+            periodSeconds: 15
+            timeoutSeconds: 15
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /_stcore/health
+              port: 8501
+            initialDelaySeconds: 10
+            periodSeconds: 15
+            timeoutSeconds: 15
+            failureThreshold: 3
+          resources:
+            # requests:
+            #   cpu: 100m
+            #   memory: 64Mi
+            # limits:
+            #   cpu: 200m
+            #   memory: 128Mi
+            requests:
+              cpu: "500m"
+              memory: "512Mi"
+            limits:
+              cpu: "1"
+              memory: "1Gi"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: reactivechatbotservice
+  labels:
+    app: reactivechatbotservice
+spec:
+  type: ClusterIP
+  selector:
+    app: reactivechatbotservice
+  ports:
+    - name: http
+      port: 8501
+      targetPort: 8501
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: reactivechatbotservice
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: reactivechatbotservice-external
+  labels:
+    app: reactivechatbotservice
+spec:
+  type: LoadBalancer
+  selector:
+    app: reactivechatbotservice
+  ports:
+    - name: http
+      port: 80
+      targetPort: 8501

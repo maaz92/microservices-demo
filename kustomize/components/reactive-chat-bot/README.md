@@ -10,41 +10,42 @@ Check the demo video [here](https://youtu.be/60D05QvQb8Q)
 1. You need your Gemini API Key. You can get it [here](https://aistudio.google.com/apikey)
    Replace <YOUR_API_KEY> with your API Key and execute the following command:
 
-   ```sh
-   echo -n '<YOUR_API_KEY>' | base64 | { read REPLACEMENT_VALUE; sed -i "s/GEMINI_API_KEY/$REPLACEMENT_VALUE/g" reactivechatbotsecrets.yaml; }
-   ```
+```sh
+echo -n '<YOUR_API_KEY>' | base64 | { read REPLACEMENT_VALUE; sed -i "s/GEMINI_API_KEY/$REPLACEMENT_VALUE/g" reactivechatbotsecrets.yaml; }
+```
 
-   Or for MAC use the following command:
+Or for MAC use the following command:
 
-   ```sh
-   echo -n '<YOUR_API_KEY>' | base64 | { read REPLACEMENT_VALUE; sed -i '' "s/GEMINI_API_KEY/$REPLACEMENT_VALUE/g" reactivechatbotsecrets.yaml; }
-   ```
+```sh
+echo -n '<YOUR_API_KEY>' | base64 | { read REPLACEMENT_VALUE; sed -i '' "s/GEMINI_API_KEY/$REPLACEMENT_VALUE/g" reactivechatbotsecrets.yaml; }
+```
 
 2. Store the secrets in the GKE cluster by executing the following command.
 
-   ```sh
-   kubectl apply -f reactivechatbotsecrets.yaml
-   ```
+```sh
+kubectl apply -f reactivechatbotsecrets.yaml
+```
 
-3. Update the reactivechatbotservice.yaml to update ONLINE_BOUTIQUE_BASE_URL_VALUE to the Frontend External URL you got after setting up Online Boutique without the trailing '/'
+3. Update ONLINE_BOUTIQUE_BASE_URL_VALUE in the reactivechatbotservice.yaml to the Frontend External URL you got after setting up Online Boutique without the trailing '/'
 
-   ```sh
-   sed -i "s/ONLINE_BOUTIQUE_BASE_URL_VALUE/<FRONTEND_EXTERNAL_URL>/g" reactivechatbotservice.yaml
-   ```
+```sh
+sed -i "s/ONLINE_BOUTIQUE_BASE_URL_VALUE/<FRONTEND_EXTERNAL_URL>/g" reactivechatbotservice.yaml
+```
 
-   Or for MAC use the following command
+Or for MAC use the following command
 
-   ```sh
-   sed -i '' "s/ONLINE_BOUTIQUE_BASE_URL_VALUE/<FRONTEND_EXTERNAL_URL>/g" reactivechatbotservice.yaml
-   ```
+```sh
+sed -i '' "s/ONLINE_BOUTIQUE_BASE_URL_VALUE/<FRONTEND_EXTERNAL_URL>/g" reactivechatbotservice.yaml
+```
 
 4. Run the reactive chat bot using the following command
 
-   ```sh
-       kubectl apply -f reactivechatbotservice.yaml
-   ```
+```sh
+    kubectl apply -f reactivechatbotservice.yaml
+```
 
 5. Access the Frontend of the reactive chat bot using its frontend's external IP.
-   ```sh
-       kubectl get service reactivechatbotservice-external | awk '{print $4}'
-   ```
+
+```sh
+    kubectl get service reactivechatbotservice-external | awk '{print $4}'
+```

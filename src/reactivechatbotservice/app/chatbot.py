@@ -12,7 +12,7 @@ st.set_page_config(
 )
 
 with st.sidebar:
-    st.image("./images/Hipster_HeroLogoMaroon.svg", use_container_width=True)
+    st.image("./images/Hipster_HeroLogoMaroon.svg", width='stretch')
 
 st.title("Rachel, your shopping assistant")
 

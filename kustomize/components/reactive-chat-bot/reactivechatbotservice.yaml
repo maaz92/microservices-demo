@@ -57,7 +57,7 @@ spec:
                   name: reactive-chatbot-secret-data
                   key: gemini-api-key
             - name: ONLINE_BOUTIQUE_BASE_URL
-              value: "ONLINE_BOUTIQUE_BASE_URL"
+              value: "ONLINE_BOUTIQUE_BASE_URL_VALUE"
           livenessProbe:
             httpGet:
               path: /_stcore/health

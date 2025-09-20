@@ -1,3 +1,38 @@
+## Flow Description
+
+User → UI
+The user enters a natural language query (e.g., “Show me black sneakers under $80”).
+
+UI → Backend (BE)
+The UI forwards the query to the backend for processing.
+
+Backend → LLM (gemini-2.5-flash)
+The backend sends the user’s query along with prompts and tool information to the LLM.
+
+LLM internal planning
+The LLM analyzes the query, decides how to answer, and determines which tools are needed.
+
+LLM → Tools
+The LLM calls one or more tools to fulfill the request.
+
+Tools → Microservices (via gRPC)
+The tools make a gRPC API call to Online Boutique microservices to fetch product data or perform shopping actions.
+
+Microservices → Tools
+The microservices return a structured response (e.g., product list, cart update).
+
+Tools → LLM
+The tools send the processed response back to the LLM.
+
+LLM → Backend
+The LLM formulates the final natural language answer.
+
+Backend → UI
+The backend forwards the final answer to the UI.
+
+UI → User
+The UI displays the answer back to the user in a conversational format.
+
 ## Inspiration
 
 Online shopping is often overwhelming — too many clicks, filters, and endless scrolling. I wanted to make it feel as natural as asking a shopkeeper for what you want. Convershop was born from the idea of blending conversational AI with the simplicity of shopping.

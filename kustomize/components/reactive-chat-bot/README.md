@@ -3,6 +3,8 @@
 Convershop is an AI-powered shopping assistant that understands natural language. Users can ask for products in plain English — “Show me black sneakers under $80” — and the bot handles product discovery, filtering, cart management, and checkout, all through conversation.
 Check the demo video [here](https://youtu.be/60D05QvQb8Q)
 
+![Screenshot](documents/screenshot.png "Screenshot")
+
 ## Setup instructions
 
 **Note:** As this is a customization, this demo requires you to first setup Online Boutique using this [link](https://github.com/GoogleCloudPlatform/microservices-demo/blob/main/README.md)
@@ -49,3 +51,5 @@ sed -i '' "s/ONLINE_BOUTIQUE_BASE_URL_VALUE/<FRONTEND_EXTERNAL_URL>/g" reactivec
 ```sh
     kubectl get service reactivechatbotservice-external | awk '{print $4}'
 ```
+
+![Architecture](documents/architecture.png "Architecture")

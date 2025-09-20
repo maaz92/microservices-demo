@@ -33,6 +33,11 @@ The backend forwards the final answer to the UI.
 UI → User
 The UI displays the answer back to the user in a conversational format.
 
+## GKE + gemini-2.5-flash
+
+The app is deployed in GKE in the online-boutique cluster alongside other microservices.
+It calls their gRPC APIs. The app uses gemini-2.5-flash for chat completions and tool orchestration.
+
 ## Inspiration
 
 Online shopping is often overwhelming — too many clicks, filters, and endless scrolling. I wanted to make it feel as natural as asking a shopkeeper for what you want. Convershop was born from the idea of blending conversational AI with the simplicity of shopping.

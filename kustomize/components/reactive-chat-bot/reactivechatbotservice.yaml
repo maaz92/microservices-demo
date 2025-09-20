@@ -30,7 +30,7 @@ spec:
                 - ALL
             privileged: false
             readOnlyRootFilesystem: false
-          image: us-central1-docker.pkg.dev/online-boutique-chatbot-472206/images/reactivechatbotservice:v39
+          image: YOUR_DOCKER_IMAGE_TAG
           ports:
             - name: http
               containerPort: 8501

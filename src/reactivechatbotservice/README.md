@@ -45,7 +45,7 @@ sed -i '' "s/ONLINE_BOUTIQUE_BASE_URL_VALUE/<FRONTEND_EXTERNAL_URL>/g" reactivec
 ```sh
 gcloud artifacts repositories create images \
     --repository-format=docker \
-    --location=us-central1
+    --location=us-central1 --project=${PROJECT_ID}
 ```
 
 5. Build and push docker image.

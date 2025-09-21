@@ -180,7 +180,7 @@ tools = [get_cart_items, add_item_to_cart, empty_cart, list_product, get_product
 # Create LLM class
 llm = ChatGoogleGenerativeAI(
     model= "gemini-2.5-flash",
-    temperature=1.0,
+    temperature=0.4,
     max_retries=2,
     google_api_key=api_key,
 )

@@ -15,3 +15,6 @@ def write_message(role, content, save = True):
 
 def get_session_id():
     return get_script_run_ctx().session_id
+
+def get_user_id():
+    return st.session_state.chat_id

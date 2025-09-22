@@ -10,6 +10,7 @@ from google.protobuf.json_format import MessageToJson
 import demo_pb2
 import grpc_clients
 import streamlit as st
+import utils
 
 memory = InMemorySaver()
 
@@ -18,45 +19,47 @@ try:
 except KeyError:
     print("Error: GEMINI_API_KEY environment variable is not set.")
     sys.exit(1)
-try:
-    ONLINE_BOUTIQUE_BASE_URL = os.environ["ONLINE_BOUTIQUE_BASE_URL"]
-except KeyError:
-    print("Error: ONLINE_BOUTIQUE_BASE_URL environment variable is not set.")
-    sys.exit(1)
+
+def get_product_picture_uri(picture: str):
+    """
+    Gets the product picture uri
+    Args: picture (str)
+    Returns:
+        str: The product picture uri
+    """
+    return f"app{picture}"
 
 @tool
-def get_cart_items(user_id: str) -> demo_pb2.Cart:
+def get_cart_items() -> demo_pb2.Cart:
     """
     Gets the items in the cart.
 
-    Args:
-        user_id (str): The user_id
+    Args: No Arguments
 
     Returns:
         demo_pb2.Cart the user_id and items(a list of cart items)
     """
-    return grpc_clients.cart_service_client.get_cart(user_id=user_id)
+    return grpc_clients.cart_service_client.get_cart(user_id=utils.get_user_id())
 
 @tool
-def add_item_to_cart(user_id: str, product_id: str, quantity: int) -> None:
+def add_item_to_cart(product_id: str, quantity: int) -> None:
     """
     Adds given quantity of products to the cart.
 
     Args:
-        user_id (str): The user_id
         product_id (str): The product_id
         quantity (int): The quantity of product
     """
-    grpc_clients.cart_service_client.add_item_to_cart(user_id=user_id, product_id=product_id, quantity=quantity)
+    grpc_clients.cart_service_client.add_item_to_cart(user_id=utils.get_user_id(), product_id=product_id, quantity=quantity)
 
 @tool
-def empty_cart(user_id) -> None:
+def empty_cart() -> None:
     """
     Empties the cart for the user.
     Args:
-        user_id (str): The user_id
+        No arguments
     """
-    grpc_clients.cart_service_client.empty_cart(user_id=user_id)
+    grpc_clients.cart_service_client.empty_cart(user_id=utils.get_user_id())
 
 @tool
 def list_product() -> demo_pb2.ListProductsResponse:
@@ -68,7 +71,7 @@ def list_product() -> demo_pb2.ListProductsResponse:
     """
     list_product_response =  grpc_clients.product_catalog_service_client.list_product()
     for product in list_product_response.products:
-        product.picture = get_product_picture_url(picture=product.picture)
+        product.picture = get_product_picture_uri(picture=product.picture)
     return list_product_response
 
 @tool
@@ -81,7 +84,7 @@ def get_product(id: str) -> demo_pb2.Product:
         demo_pb2.Product the product
     """
     product = grpc_clients.product_catalog_service_client.get_product(id=id)
-    product.picture = get_product_picture_url(picture=product.picture)
+    product.picture = get_product_picture_uri(picture=product.picture)
     return product
 
 @tool
@@ -95,28 +98,18 @@ def search_product(query: str) -> demo_pb2.SearchProductsResponse:
     """
     search_product_response = grpc_clients.product_catalog_service_client.search_product(query=query)
     for product in search_product_response.results:
-        product.picture = get_product_picture_url(picture=product.picture)
+        product.picture = get_product_picture_uri(picture=product.picture)
     return search_product_response
 
-def get_product_picture_url(picture: str):
-    """
-    Gets the product picture url
-    Args: picture (str)
-    Returns:
-        str: The product picture url
-    """
-    return f"{ONLINE_BOUTIQUE_BASE_URL}{picture}"
-
 @tool
-def place_order(user_id: str) -> demo_pb2.PlaceOrderResponse:
+def place_order() -> demo_pb2.PlaceOrderResponse:
     """
     Places order for the user
-    Args:
-        user_id (str): The user_id string
+    Args: No Arguments
     Returns:
         demo_pb2.PlaceOrderResponse: the order details
     """
-    return grpc_clients.checkout_service_client.place_order(user_id=user_id)
+    return grpc_clients.checkout_service_client.place_order(user_id=utils.get_user_id())
 
 @tool
 def get_supported_currencies() -> demo_pb2.GetSupportedCurrenciesResponse:
@@ -129,16 +122,15 @@ def get_supported_currencies() -> demo_pb2.GetSupportedCurrenciesResponse:
     return grpc_clients.currency_service_client.get_supported_currencies()
 
 @tool
-def list_recommendations(user_id: str, product_ids: list[str]) -> demo_pb2.ListRecommendationsResponse:
+def list_recommendations(product_ids: list[str]) -> demo_pb2.ListRecommendationsResponse:
     """
     Lists recommendations
     Args:
-        user_id (str): The list of product ids in the cart
         product_ids (list[str]): The list of product ids in the cart
     Returns:
         demo_pb2.ListRecommendationsResponse: the list of product_ids
     """
-    return grpc_clients.recommendation_service_client.list_recommendations(user_id=user_id, product_ids=product_ids)
+    return grpc_clients.recommendation_service_client.list_recommendations(user_id=utils.get_user_id(), product_ids=product_ids)
 
 @tool
 def get_shipping_quote(product_ids: list[str], quantities: list[int]):
@@ -162,20 +154,10 @@ def get_ads():
     """
     return grpc_clients.ad_service_client.get_ads()
 
-@tool
-def get_product_url(product_id: str) -> str:
-    """
-    Gets the product url
-    Args: product_id (str)
-    Returns:
-        str: The product url
-    """
-    return f"{ONLINE_BOUTIQUE_BASE_URL}/product/{product_id}"
-
 
 tools = [get_cart_items, add_item_to_cart, empty_cart, list_product, get_product,search_product,
          place_order, get_supported_currencies, list_recommendations, get_shipping_quote,
-         get_ads, get_product_url]
+         get_ads]
 
 # Create LLM class
 llm = ChatGoogleGenerativeAI(
@@ -199,14 +181,14 @@ def llm_call(state: MessagesState):
                     SystemMessage(
                         content="""You are Rachel an online shopping assistant for Online Boutique. You can assist by doing only the following two types of tasks:
                         1. Add items to the cart.
-                        2. Show the cart: product name, picture, price and the shipping quote for the whole cart, total amount including the shipping quote. Everything in a tabular format.
-                        3. Empty the cart: After emptying the cart show ads to him. Show product name, picture, description, url and price.
-                        4. List products in the shop. Show the product name, picture, description, url and price.
-                        5. Search for products in the shop. Show the product name, picture, description, url and price.
-                        6. Place an order. Always show the cart and the recommended products and ask for a confirmation before placing the order. And after order is placed, show the order and shipping details.
+                        2. Show the cart: product name, image, quantity, price and the shipping quote for the whole cart, total amount including the shipping quote. Everything in a tabular format.
+                        3. Empty the cart: After emptying the cart show ads to him. Show product name, image, description and price in. a tabular format.
+                        4. List products in the shop. Show the product name, image, description and price in a tabular format.
+                        5. Search for products in the shop. Show the product name, image, description and price in. a tabular format.
+                        6. Place an order. Always show the cart and recommended products and ask for a confirmation before placing the order. And after order is placed, show the order and shipping details.
                         7. List supported currencies.
 Follow these for all the responses:
-On clicking the name of the product the user should be redirected to the product url.
+The value of "picture" will be a uri. You need to display the image at the picture uri using <img/> tag.
 Return your responses as it will be displayed in a shopping website chat.
 You are not allowed to use any external knowledge or information.
 Only use the information provided in the context. Don't use your pretrained knowledge."""

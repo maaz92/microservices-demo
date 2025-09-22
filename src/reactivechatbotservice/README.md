@@ -28,19 +28,7 @@ echo -n '<YOUR_API_KEY>' | base64 | { read REPLACEMENT_VALUE; sed -i '' "s/GEMIN
 kubectl apply -f reactivechatbotsecrets.yaml
 ```
 
-3. Update ONLINE_BOUTIQUE_BASE_URL_VALUE in the reactivechatbotservice.yaml to the Frontend External URL you got after setting up Online Boutique without the trailing '/'
-
-```sh
-sed -i "s/ONLINE_BOUTIQUE_BASE_URL_VALUE/<FRONTEND_EXTERNAL_URL>/g" reactivechatbotservice.yaml
-```
-
-Or for MAC use the following command
-
-```sh
-sed -i '' "s/ONLINE_BOUTIQUE_BASE_URL_VALUE/<FRONTEND_EXTERNAL_URL>/g" reactivechatbotservice.yaml
-```
-
-4. Create an Artifact Registry container image repository.
+3. Create an Artifact Registry container image repository.
 
 ```sh
 gcloud artifacts repositories create images \
@@ -48,7 +36,7 @@ gcloud artifacts repositories create images \
     --location=us-central1 --project=${PROJECT_ID}
 ```
 
-5. Build and push docker image.
+4. Build and push docker image.
 
 ```sh
     docker build --platform linux/amd64  -t reactivechatbotservice:v1 .
@@ -56,21 +44,37 @@ gcloud artifacts repositories create images \
     docker push ${REGION}-docker.pkg.dev/${PROJECT_ID}/images/reactivechatbotservice:v1
 ```
 
-6. Use the docker image you created and pushed. Get its value by executing the following.
+OR
+
+Use
+
+```sh
+us-central1-docker.pkg.dev/online-boutique-chatbot-472206/images/reactivechatbotservice:v1.8
+```
+
+5. Use the docker image you created and pushed. Get its value by executing the following.
 
 ```sh
 echo ${REGION}-docker.pkg.dev/${PROJECT_ID}/images/reactivechatbotservice:v1
 ```
 
+OR
+
+Use
+
+```sh
+us-central1-docker.pkg.dev/online-boutique-chatbot-472206/images/reactivechatbotservice:v1.8
+```
+
 Replace YOUR_DOCKER_IMAGE_TAG in reactivechatbotservice.yaml with the value you got above.
 
-7. Run the reactive chat bot using the following command
+6. Run the reactive chat bot using the following command
 
 ```sh
     kubectl apply -f reactivechatbotservice.yaml
 ```
 
-8. Access the Frontend of the reactive chat bot using its frontend's external IP.
+7. Access the Frontend of the reactive chat bot using its frontend's external IP.
 
 ```sh
     kubectl get service reactivechatbotservice-external | awk '{print $4}'
